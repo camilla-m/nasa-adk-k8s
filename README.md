@@ -345,6 +345,7 @@ dentro). As APIs continuam ligadas, mas não custam nada paradas.
 | Pod `Pending` por 1 ou 2 minutos | o Autopilot está criando um nó | normal, só esperar |
 | `gke-gcloud-auth-plugin not found` | plugin não instalado | `gcloud components install gke-gcloud-auth-plugin` |
 | `adk: command not found` | venv não ativado | `source .venv/bin/activate` |
+| `503 UNAVAILABLE ... high demand` | Gemini sobrecarregado (temporário) | o agente já tenta 5 vezes sozinho; se ainda falhar, espere uns minutos ou troque `GEMINI_MODEL` |
 | Gemini diz que o modelo não existe | modelo aposentado na sua região | troque `GEMINI_MODEL` no `k8s/app.yaml` por um modelo atual |
 
 ## Ideias para continuar

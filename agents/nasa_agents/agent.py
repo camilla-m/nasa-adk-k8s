@@ -13,9 +13,16 @@ import os
 
 import requests
 from google.adk.agents import LlmAgent
+from google.adk.models import Gemini
 from google.adk.tools.agent_tool import AgentTool
+from google.genai import types
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+# Se o Gemini responder 429/503 ("high demand"), tenta de novo até 5 vezes,
+# esperando 1s, 2s, 4s, 8s entre as tentativas. Sem isso o ADK desiste na primeira.
+MODEL = Gemini(
+    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+    retry_options=types.HttpRetryOptions(attempts=5),
+)
 
 
 def buscar_imagens_nasa(termo: str) -> dict:
