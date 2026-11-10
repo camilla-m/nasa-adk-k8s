@@ -37,8 +37,9 @@ spec:
               value: "TRUE"
             - name: GOOGLE_CLOUD_PROJECT
               value: PROJECT_ID
+            # "global": modelos Gemini novos costumam existir só no endpoint global
             - name: GOOGLE_CLOUD_LOCATION
-              value: us-central1
+              value: global
             - name: GEMINI_MODEL
               value: gemini-3.1-flash-lite
           resources:

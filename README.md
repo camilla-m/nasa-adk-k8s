@@ -98,7 +98,7 @@ export GOOGLE_API_KEY="sua-chave"
 gcloud auth application-default login
 export GOOGLE_GENAI_USE_VERTEXAI=TRUE
 export GOOGLE_CLOUD_PROJECT="seu-projeto"
-export GOOGLE_CLOUD_LOCATION=us-central1
+export GOOGLE_CLOUD_LOCATION=global   # modelos novos ficam no endpoint global
 ```
 
 Suba a interface de desenvolvimento do ADK:
@@ -346,7 +346,8 @@ dentro). As APIs continuam ligadas, mas não custam nada paradas.
 | `gke-gcloud-auth-plugin not found` | plugin não instalado | `gcloud components install gke-gcloud-auth-plugin` |
 | `adk: command not found` | venv não ativado | `source .venv/bin/activate` |
 | `503 UNAVAILABLE ... high demand` | Gemini sobrecarregado (temporário) | o agente já tenta 5 vezes sozinho; se ainda falhar, espere uns minutos ou troque `GEMINI_MODEL` |
-| Gemini diz que o modelo não existe | modelo aposentado na sua região | troque `GEMINI_MODEL` no `k8s/app.yaml` por um modelo atual |
+| `404 Publisher model ... was not found` (Vertex) | modelo não existe nessa região do Vertex | use `GOOGLE_CLOUD_LOCATION=global`, ou troque `GEMINI_MODEL`; no cluster: `kubectl set env -n nasa deployment/nasa-agents GEMINI_MODEL=<modelo>` |
+| `404 ... no longer available to new users` (AI Studio) | modelo aposentado | troque `GEMINI_MODEL` por um modelo atual |
 
 ## Ideias para continuar
 
