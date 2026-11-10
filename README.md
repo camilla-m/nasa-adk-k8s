@@ -349,6 +349,66 @@ dentro). As APIs continuam ligadas, mas não custam nada paradas.
 | `404 Publisher model ... was not found` (Vertex) | modelo não existe nessa região do Vertex | use `GOOGLE_CLOUD_LOCATION=global`, ou troque `GEMINI_MODEL`; no cluster: `kubectl set env -n nasa deployment/nasa-agents GEMINI_MODEL=<modelo>` |
 | `404 ... no longer available to new users` (AI Studio) | modelo aposentado | troque `GEMINI_MODEL` por um modelo atual |
 
+## Menção honrosa: pegadinhas que apareceram testando
+
+Coisas que pegaram a gente na primeira vez que rodamos este tutorial de ponta a ponta.
+
+**1. O mesmo modelo pode existir no AI Studio e não no Vertex (ou o contrário).**
+O `gemini-3.1-flash-lite` funcionava com a chave do AI Studio (passo 1, opção A),
+mas no GKE dava `404 Publisher model ... was not found`. No Vertex ele só existe no
+endpoint **global**, não em `us-central1`. Por isso o `k8s/app.yaml` usa
+`GOOGLE_CLOUD_LOCATION=global`. O cluster continua em `us-central1`, só a chamada
+ao Gemini vai para o global.
+
+Para descobrir quais modelos o seu projeto alcança no Vertex:
+
+```bash
+export PROJECT_ID="seu-projeto"
+TOKEN=$(gcloud auth print-access-token)
+for loc in us-central1 global; do
+  host=$([ $loc = global ] && echo aiplatform.googleapis.com || echo $loc-aiplatform.googleapis.com)
+  for m in gemini-3.1-flash-lite gemini-3.5-flash-lite gemini-2.5-flash; do
+    printf "%-12s %-24s " $loc $m
+    curl -s -o /dev/null -w "%{http_code}  %{time_total}s\n" -X POST \
+      "https://${host}/v1/projects/${PROJECT_ID:?defina PROJECT_ID}/locations/${loc}/publishers/google/models/${m}:generateContent" \
+      -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+      -d '{"contents":[{"role":"user","parts":[{"text":"oi"}]}]}'
+  done
+done
+```
+
+`200` funciona. Troque no cluster sem rebuild:
+`kubectl set env -n nasa deployment/nasa-agents GEMINI_MODEL=<modelo> GOOGLE_CLOUD_LOCATION=<local>`.
+
+**2. Modelo da moda vive lotado (`503 UNAVAILABLE ... high demand`).**
+O modelo flash mais novo ficou dando 503 por muito tempo, principalmente com a
+chave grátis do AI Studio. O ADK não tenta de novo por padrão, então o
+[agent.py](agents/nasa_agents/agent.py) configura `retry_options` (5 tentativas
+com espera crescente). Se mesmo assim falhar, use um modelo "lite": além de ter
+menos fila, é bem mais rápido, e cada pergunta faz 4 chamadas ao Gemini
+(professor, astronomo, astronomo de novo, professor).
+
+**3. `kubectl get nodes` vazio no Autopilot é normal.**
+Os nós só nascem quando aparece um pod para rodar. Antes do passo 7, os pods do
+`kube-system` (como o `kube-dns`) ficam `Pending`, e isso também é normal. O
+primeiro deploy leva de 3 a 6 minutos: criar o nó (2 a 5 min), baixar a imagem
+(~1 min) e subir o `adk web`. Acompanhe com `kubectl get events -n nasa -w`.
+
+**4. No zsh, `$m:algo` não é o que parece.**
+Em scripts com `"$m:generateContent"`, o zsh lê o `:g` como modificador da
+variável e a URL sai quebrada (404 vazio). Use sempre `${m}:generateContent`.
+
+**5. O Cloud Shell esquece as variáveis.**
+Se a sessão reiniciar, `$PROJECT_ID`, `$REGION` e `$IMAGE` somem, e os comandos
+falham de jeitos estranhos (como 400 em toda chamada ao Vertex, porque a URL
+virou `projects//...`). Recrie:
+
+```bash
+export PROJECT_ID="seu-projeto"
+export REGION="us-central1"
+export IMAGE=$(terraform -chdir=terraform output -raw image)
+```
+
 ## Ideias para continuar
 
 - Dar mais uma ferramenta ao `astronomo` (por exemplo a
