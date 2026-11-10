@@ -40,7 +40,7 @@ spec:
             - name: GOOGLE_CLOUD_LOCATION
               value: us-central1
             - name: GEMINI_MODEL
-              value: gemini-2.5-flash
+              value: gemini-3.8-flash
           resources:
             requests:
               cpu: 250m

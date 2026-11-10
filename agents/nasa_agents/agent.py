@@ -15,7 +15,7 @@ import requests
 from google.adk.agents import LlmAgent
 from google.adk.tools.agent_tool import AgentTool
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
 
 def buscar_imagens_nasa(termo: str) -> dict:
