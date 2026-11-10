@@ -3,3 +3,4 @@ terraform/
 .env
 __pycache__/
 .adk/
+config.env
