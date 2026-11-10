@@ -74,7 +74,7 @@ Você também precisa de um **projeto no Google Cloud com billing ativado**
 Antes de pensar em Kubernetes, vamos ver os agentes funcionando.
 
 ```bash
-git clone <este-repo> nasa-adk-k8s
+git clone https://github.com/camilla-m/nasa-adk-k8s.git
 cd nasa-adk-k8s
 
 python3 -m venv .venv
