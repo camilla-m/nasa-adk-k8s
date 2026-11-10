@@ -20,7 +20,7 @@ from google.genai import types
 # Se o Gemini responder 429/503 ("high demand"), tenta de novo até 5 vezes,
 # esperando 1s, 2s, 4s, 8s entre as tentativas. Sem isso o ADK desiste na primeira.
 MODEL = Gemini(
-    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+    model=os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite"),
     retry_options=types.HttpRetryOptions(attempts=5),
 )
 

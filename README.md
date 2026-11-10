@@ -29,7 +29,7 @@ sem scripts, cada comando é digitado e explicado.
 - **professor**: é quem conversa com você. Ele não sabe buscar nada sozinho:
   pede ajuda ao `astronomo` e traduz a resposta para linguagem de criança.
 
-Os dois usam o Gemini (`gemini-3.8-flash`) como modelo.
+Os dois usam o Gemini (`gemini-3.1-flash-lite`) como modelo.
 
 ## Estrutura do projeto
 
